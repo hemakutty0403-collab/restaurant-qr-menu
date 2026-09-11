@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Admin</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+        }
+
+        header {
+            background: #8b0000;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .order {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .order h3 {
+            margin-top: 0;
+            color: #8b0000;
+        }
+
+        .order p {
+            margin: 8px 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            background: orange;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🍽️ Restaurant Admin Dashboard</h1>
+    <p>Manage Customer Orders</p>
+</header>
+
+<div class="container">
+
+    <h2>📋 Customer Orders</h2>
+
+    <div id="orders">
+        <p>Loading orders...</p>
+    </div>
+
+</div>
+
+<script>
+
+fetch("/admin/orders")
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(orders) {
+
+        let ordersContainer = document.getElementById("orders");
+
+        ordersContainer.innerHTML = "";
+
+        if (orders.length === 0) {
+
+            ordersContainer.innerHTML =
+                "<p>No orders yet.</p>";
+
+            return;
+        }
+
+        orders.forEach(function(order, index) {
+
+            let orderDiv = document.createElement("div");
+
+            orderDiv.className = "order";
+
+            let itemsHTML = "";
+
+            order.items.forEach(function(item) {
+
+                itemsHTML +=
+                    "<p>🍴 " +
+                    item.name +
+                    " × " +
+                    item.quantity +
+                    " — ₹" +
+                    (item.price * item.quantity) +
+                    "</p>";
+
+            });
+
+            orderDiv.innerHTML =
+                "<h3>Order #" + (index + 1) + "</h3>" +
+
+                "<p><b>Table:</b> " +
+                order.tableNumber +
+                "</p>" +
+
+                "<p><b>Customer:</b> " +
+                order.customerName +
+                "</p>" +
+
+                itemsHTML +
+
+                "<p><b>Total:</b> ₹" +
+                calculateTotal(order.items) +
+                "</p>" +
+
+                "<p><b>Date:</b> " +
+                order.date +
+                "</p>" +
+
+                "<span class='status'>Pending</span>";
+
+            ordersContainer.appendChild(orderDiv);
+
+        });
+
+    });
+
+
+function calculateTotal(items) {
+
+    let total = 0;
+
+    items.forEach(function(item) {
+
+        total += item.price * item.quantity;
+
+    });
+
+    return total;
+}
+
+</script>
+
+</body>
+</html>
